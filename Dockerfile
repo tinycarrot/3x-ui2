@@ -1,7 +1,7 @@
 # ========================================================
 # Stage: Builder
 # ========================================================
-FROM --platform=$BUILDPLATFORM golang:1.22 AS builder
+FROM --platform=linux/arm64 golang:1.22 AS builder
 WORKDIR /app
 ARG TARGETARCH
 
@@ -23,7 +23,7 @@ RUN ./DockerInit.sh "$TARGETARCH"
 # ========================================================
 # Stage: Final Image of 3x-ui
 # ========================================================
-FROM --platform=$BUILDPLATFORM ubuntu:22.04
+FROM --platform=linux/arm64 ubuntu:22.04
 ENV TZ=Asia/Tehran
 WORKDIR /app
 
