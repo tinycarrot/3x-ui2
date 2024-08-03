@@ -1,15 +1,16 @@
 # ========================================================
 # Stage: Builder
 # ========================================================
-FROM golang:1.22-alpine AS builder
+FROM golang:1.22 AS builder
 WORKDIR /app
 ARG TARGETARCH
 
-RUN apk --no-cache --update add \
-  build-base \
+RUN apt-get update && apt-get install -y \
+  build-essential \
   gcc \
   wget \
-  unzip
+  unzip \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY . .
 
@@ -42,6 +43,8 @@ RUN rm -f /etc/fail2ban/jail.d/ubuntu-ssh.conf \
   && sed -i "s/^\[ssh\]$/&\nenabled = false/" /etc/fail2ban/jail.local \
   && sed -i "s/^\[sshd\]$/&\nenabled = false/" /etc/fail2ban/jail.local \
   && sed -i "s/#allowipv6 = auto/allowipv6 = auto/g" /etc/fail2ban/fail2ban.conf
+
+COPY --from=builder /app/x-ui /app/x-ui
 
 RUN chmod +x \
   /app/DockerEntrypoint.sh \
