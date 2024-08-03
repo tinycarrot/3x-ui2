@@ -21,23 +21,23 @@ RUN ./DockerInit.sh "$TARGETARCH"
 # ========================================================
 # Stage: Final Image of 3x-ui
 # ========================================================
-FROM alpine
+FROM ubuntu:22.04
 ENV TZ=Asia/Tehran
 WORKDIR /app
 
-RUN apk add --no-cache --update \
+RUN apt-get update && apt-get install -y \
   ca-certificates \
   tzdata \
   fail2ban \
-  bash
+  bash \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/build/ /app/
 COPY --from=builder /app/DockerEntrypoint.sh /app/
 COPY --from=builder /app/x-ui.sh /usr/bin/x-ui
 
-
 # Configure fail2ban
-RUN rm -f /etc/fail2ban/jail.d/alpine-ssh.conf \
+RUN rm -f /etc/fail2ban/jail.d/ubuntu-ssh.conf \
   && cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local \
   && sed -i "s/^\[ssh\]$/&\nenabled = false/" /etc/fail2ban/jail.local \
   && sed -i "s/^\[sshd\]$/&\nenabled = false/" /etc/fail2ban/jail.local \
